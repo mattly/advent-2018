@@ -1,0 +1,2 @@
+{:paths #{"src" "resources"}
+ :deps {org.clojure/tools.nrepl {:mvn/version "0.2.12"}}}
