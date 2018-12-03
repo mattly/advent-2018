@@ -1,9 +1,8 @@
-(ns aoc.d01)
+(ns d01)
 
-(require '[clojure.java.io :as io])
-(require '[clojure.string :as str])
+(require '[help])
 
-(def input (->> "01.txt" io/resource slurp str/split-lines (map #(Integer/parseInt %))))
+(def input (map (fn [i] (Integer/parseInt i)) (help/input "01.txt")))
 
 (reduce + 0 input)
 
