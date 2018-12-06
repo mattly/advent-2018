@@ -18,9 +18,9 @@
 (def locations
   (for [x (range (inc max-x))
         y (range (inc max-y))]
-    (let [nearest
-          (->> points
-               (map (juxt identity (partial calc-dist x y)))
+    (let [distances (map (juxt identity (partial calc-dist x y)) points)
+          nearest
+          (->> distances
                (sort-by second)
                (partition-by second)
                first
@@ -28,8 +28,10 @@
       {:x x :y y
        :nearest nearest
        :conflicted? (< 1 (count nearest))
-       :edge? (or (edge-x x) (edge-y y))})))
+       :edge? (or (edge-x x) (edge-y y))
+       :total (->> distances (map second) (reduce +))})))
 
+;; first
 (->> locations
      (mapcat (fn [{:keys [nearest conflicted? edge?]}]
                (map (fn [pt] {:pt pt :conflicted? conflicted? :edge? edge?}) nearest)))
@@ -38,3 +40,6 @@
      (map (fn [[pt locs]] [pt (count (remove :conflicted? locs))]))
      (sort-by second)
      (last))
+
+;;second
+(count (filter #(>= 10000 (:total %)) locations))
