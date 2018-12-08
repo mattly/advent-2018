@@ -9,26 +9,38 @@
 (def nums (map #(Integer/parseInt %) (str/split (first input) #"\s+")))
 
 (def tree
-  (loop [c (-> [{:child-count (first nums) :meta-count (second nums)}]
+  (loop [c (-> [{:cc (first nums) :mc (second nums)}]
                zip/vector-zip
                zip/down)
          remaining (drop 2 nums)]
     (if (empty? remaining)
       (zip/root c)
-      (let [{:keys [child-count meta-count]} (some-> c zip/leftmost zip/node)]
-        (if (> child-count (some-> c zip/up zip/children count (- 1)))
+      (let [{:keys [cc mc]} (some-> c zip/leftmost zip/node)]
+        (if (> cc (some-> c zip/up zip/children count (- 1)))
           (let [[next-child-count next-meta-count & next-remaining] remaining]
             (recur (-> c
                        (zip/insert-right
-                        [{:child-count next-child-count
-                          :meta-count next-meta-count}])
+                        [{:cc next-child-count
+                          :mc next-meta-count}])
                        (zip/right)
                        (zip/down))
                    next-remaining))
           (recur (-> c
-                     (zip/insert-right {:meta (take meta-count remaining)})
+                     (zip/leftmost)
+                     (zip/edit assoc :meta (take mc remaining))
+                     (zip/edit (fn [node]
+                                 (if (zero? (:cc node))
+                                   (assoc node :value (reduce + (:meta node)))
+                                   (let [parent (-> c zip/up zip/node)]
+                                     (->> (take mc remaining)
+                                          (remove zero?)
+                                          (map #(get parent %))
+                                          (filter identity)
+                                          (map (comp :value first))
+                                          (reduce + 0)
+                                          (assoc node :value))))))
                      (zip/up))
-                 (drop meta-count remaining)))))))
+                 (drop mc remaining)))))))
 
 ;; part 1
 (->> tree
@@ -36,3 +48,6 @@
      (filter :meta)
      (mapcat :meta)
      (reduce +))
+
+;; part 2
+(-> tree first :value)
