@@ -29,6 +29,7 @@
         (println iter height))
       (when sm?
         (newline)
+        (println iter)
         (let [xs (map :px next-pts)
               top-row (apply min ys)
               bot-row (apply max ys)
