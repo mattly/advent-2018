@@ -5,7 +5,6 @@
 
 (require '[clojure.zip :as zip])
 
-(-> [0] zip/vector-zip zip/down)
 (defn move-or-wrap [loc' dir times]
   (reduce (fn [loc _]
             (case dir
